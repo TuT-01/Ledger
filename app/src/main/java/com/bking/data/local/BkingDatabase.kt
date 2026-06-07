@@ -102,6 +102,9 @@ abstract class BkingDatabase : RoomDatabase() {
                     """.trimIndent()
                 )
                 db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_budgets_categoryAccountId ON budgets(categoryAccountId)"
+                )
+                db.execSQL(
                     "CREATE UNIQUE INDEX IF NOT EXISTS index_budgets_month_categoryAccountId ON budgets(month, categoryAccountId)"
                 )
             }
