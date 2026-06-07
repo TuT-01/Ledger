@@ -2,6 +2,7 @@ package com.bking.data.repository
 
 import com.bking.data.local.entity.AccountEntity
 import com.bking.data.local.entity.LedgerEntryEntity
+import com.bking.data.local.model.LedgerEntryWithTransaction
 import com.bking.domain.model.AccountGroup
 import com.bking.domain.model.AccountType
 import com.bking.domain.model.EntryDirection
@@ -71,6 +72,37 @@ class DashboardRepositoryTest {
         assertEquals(-12000L, summary.monthlySurplus.minorUnits)
     }
 
+    @Test
+    fun `summary uses only entries inside the selected month for monthly cash flow`() {
+        val now = Instant.parse("2026-05-12T10:00:00Z")
+        val monthStart = Instant.parse("2026-05-01T00:00:00Z")
+        val nextMonthStart = Instant.parse("2026-06-01T00:00:00Z")
+        val accounts = listOf(
+            account("cash", AccountGroup.ASSET, AccountType.CASH, now),
+            account("salary", AccountGroup.INCOME, AccountType.INCOME_CATEGORY, now),
+            account("food", AccountGroup.EXPENSE, AccountType.EXPENSE_CATEGORY, now)
+        )
+        val allEntries = listOf(
+            entry("may-income", "salary", EntryDirection.CREDIT, 800000),
+            entry("april-expense", "food", EntryDirection.DEBIT, 9000)
+        )
+        val monthEntries = listOf(
+            monthlyEntry("may-income", "salary", EntryDirection.CREDIT, 800000, now)
+        )
+
+        val summary = DashboardRepository.calculateSummary(
+            accounts = accounts,
+            entries = allEntries,
+            monthStart = monthStart,
+            nextMonthStart = nextMonthStart,
+            monthlyEntries = monthEntries
+        )
+
+        assertEquals(Money.cnyCents(800000), summary.monthlyIncome)
+        assertEquals(Money.cnyCents(0), summary.monthlyExpense)
+        assertEquals(Money.cnyCents(800000), summary.monthlySurplus)
+    }
+
     private fun account(
         id: String,
         group: AccountGroup,
@@ -99,5 +131,21 @@ class DashboardRepositoryTest {
         direction = direction,
         amountMinorUnits = amount,
         currencyCode = "CNY"
+    )
+
+    private fun monthlyEntry(
+        id: String,
+        accountId: String,
+        direction: EntryDirection,
+        amount: Long,
+        occurredAt: Instant
+    ): LedgerEntryWithTransaction = LedgerEntryWithTransaction(
+        id = id,
+        transactionId = "txn-$id",
+        accountId = accountId,
+        direction = direction,
+        amountMinorUnits = amount,
+        currencyCode = "CNY",
+        transactionOccurredAt = occurredAt
     )
 }

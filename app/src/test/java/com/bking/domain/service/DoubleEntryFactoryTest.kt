@@ -119,6 +119,30 @@ class DoubleEntryFactoryTest {
     }
 
     @Test
+    fun `loan payment debits liability principal and interest expense then credits paying asset`() {
+        val draft = DoubleEntryFactory.loanPayment(
+            principal = Money.cnyCents(200000),
+            interest = Money.cnyCents(32000),
+            paidFromAccountId = "bank",
+            liabilityAccountId = "mortgage-loan",
+            interestExpenseAccountId = "loan-interest-expense",
+            occurredAt = occurredAt,
+            note = "Mortgage payment"
+        )
+
+        assertEquals(TransactionType.LOAN_PAYMENT, draft.type)
+        assertEquals(
+            listOf(
+                LedgerEntryDraft("mortgage-loan", EntryDirection.DEBIT, Money.cnyCents(200000)),
+                LedgerEntryDraft("loan-interest-expense", EntryDirection.DEBIT, Money.cnyCents(32000)),
+                LedgerEntryDraft("bank", EntryDirection.CREDIT, Money.cnyCents(232000))
+            ),
+            draft.entries
+        )
+        assertTrue(draft.isBalanced())
+    }
+
+    @Test
     fun `lending money debits receivable and credits cash asset`() {
         val draft = DoubleEntryFactory.lend(
             amount = Money.cnyCents(200000),

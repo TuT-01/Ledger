@@ -172,6 +172,7 @@ object RecordsCalendarMapper {
         TransactionType.LIABILITY_REPAYMENT -> "还款"
         TransactionType.LEND -> "借出"
         TransactionType.BORROW -> "借入"
+        TransactionType.LOAN_PAYMENT -> "贷款还款"
         TransactionType.INVESTMENT_BUY -> "买入投资"
         TransactionType.INVESTMENT_SELL -> "卖出投资"
         TransactionType.BALANCE_ADJUSTMENT -> "初始余额"

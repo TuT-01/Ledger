@@ -113,6 +113,34 @@ object DoubleEntryFactory {
         amount = amount
     )
 
+    fun loanPayment(
+        principal: Money,
+        interest: Money,
+        paidFromAccountId: String,
+        liabilityAccountId: String,
+        interestExpenseAccountId: String,
+        occurredAt: Instant,
+        note: String
+    ): TransactionDraft {
+        require(principal.isPositive()) { "Principal amount must be positive." }
+        require(interest.minorUnits >= 0) { "Interest amount cannot be negative." }
+        require(principal.currencyCode == interest.currencyCode) { "Currency mismatch." }
+        val total = principal + interest
+        val entries = buildList {
+            add(LedgerEntryDraft(liabilityAccountId, EntryDirection.DEBIT, principal))
+            if (interest.minorUnits > 0) {
+                add(LedgerEntryDraft(interestExpenseAccountId, EntryDirection.DEBIT, interest))
+            }
+            add(LedgerEntryDraft(paidFromAccountId, EntryDirection.CREDIT, total))
+        }
+        return TransactionDraft(
+            type = TransactionType.LOAN_PAYMENT,
+            occurredAt = occurredAt,
+            note = note.trim(),
+            entries = entries
+        )
+    }
+
     fun investmentBuy(
         amount: Money,
         paidFromAccountId: String,
@@ -190,4 +218,3 @@ object DoubleEntryFactory {
         )
     )
 }
-

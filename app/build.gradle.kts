@@ -51,6 +51,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.9.6")
     implementation("androidx.room:room-ktx:2.8.4")
     implementation("androidx.room:room-runtime:2.8.4")
+    implementation("com.google.code.gson:gson:2.11.0")
     implementation("com.google.dagger:hilt-android:2.59.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 

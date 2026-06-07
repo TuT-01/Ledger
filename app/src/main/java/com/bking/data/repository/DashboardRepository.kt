@@ -3,6 +3,7 @@ package com.bking.data.repository
 import com.bking.data.local.BkingDatabase
 import com.bking.data.local.entity.AccountEntity
 import com.bking.data.local.entity.LedgerEntryEntity
+import com.bking.data.local.model.LedgerEntryWithTransaction
 import com.bking.domain.model.AccountGroup
 import com.bking.domain.model.EntryDirection
 import com.bking.domain.model.Money
@@ -30,9 +31,10 @@ class DashboardRepository @Inject constructor(
 
         return combine(
             database.accountDao().observeActiveAccounts(),
-            database.ledgerEntryDao().observeAll()
-        ) { accounts, entries ->
-            calculateSummary(accounts, entries, monthStart, nextMonthStart)
+            database.ledgerEntryDao().observeAll(),
+            database.ledgerEntryDao().observeEntriesBetween(monthStart, nextMonthStart)
+        ) { accounts, entries, monthlyEntries ->
+            calculateSummary(accounts, entries, monthStart, nextMonthStart, monthlyEntries)
         }
     }
 
@@ -41,7 +43,8 @@ class DashboardRepository @Inject constructor(
             accounts: List<AccountEntity>,
             entries: List<LedgerEntryEntity>,
             monthStart: Instant,
-            nextMonthStart: Instant
+            nextMonthStart: Instant,
+            monthlyEntries: List<LedgerEntryWithTransaction>? = null
         ): DashboardSummary {
             require(monthStart < nextMonthStart) { "Month start must be before next month start." }
 
@@ -59,8 +62,13 @@ class DashboardRepository @Inject constructor(
 
             val totalAssets = balances.sumForGroup(accounts, AccountGroup.ASSET)
             val totalLiabilities = balances.sumForGroup(accounts, AccountGroup.LIABILITY)
-            val monthlyIncome = entries.sumByNormalSide(accountGroups, AccountGroup.INCOME)
-            val monthlyExpense = entries.sumByNormalSide(accountGroups, AccountGroup.EXPENSE)
+            val periodEntries = monthlyEntries?.map {
+                NormalSideEntry(it.accountId, it.direction, it.amountMinorUnits)
+            } ?: entries.map {
+                NormalSideEntry(it.accountId, it.direction, it.amountMinorUnits)
+            }
+            val monthlyIncome = periodEntries.sumByNormalSide(accountGroups, AccountGroup.INCOME)
+            val monthlyExpense = periodEntries.sumByNormalSide(accountGroups, AccountGroup.EXPENSE)
 
             return DashboardSummary(
                 totalAssets = totalAssets,
@@ -82,7 +90,7 @@ class DashboardRepository @Inject constructor(
             return Money.cnyCents(cents)
         }
 
-        private fun List<LedgerEntryEntity>.sumByNormalSide(
+        private fun List<NormalSideEntry>.sumByNormalSide(
             accountGroups: Map<String, AccountGroup>,
             targetGroup: AccountGroup
         ): Money {
@@ -106,6 +114,12 @@ class DashboardRepository @Inject constructor(
 
     }
 }
+
+private data class NormalSideEntry(
+    val accountId: String,
+    val direction: EntryDirection,
+    val amountMinorUnits: Long
+)
 
 data class DashboardSummary(
     val totalAssets: Money = Money.cnyCents(0),

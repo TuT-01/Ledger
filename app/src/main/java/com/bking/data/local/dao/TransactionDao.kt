@@ -14,6 +14,9 @@ interface TransactionDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(transaction: TransactionEntity)
 
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertAll(transactions: List<TransactionEntity>)
+
     @Query("SELECT * FROM transactions WHERE id = :id")
     suspend fun getById(id: String): TransactionEntity?
 
@@ -22,6 +25,9 @@ interface TransactionDao {
 
     @Query("SELECT * FROM transactions ORDER BY occurredAt DESC")
     fun observeAll(): Flow<List<TransactionEntity>>
+
+    @Query("SELECT * FROM transactions ORDER BY occurredAt DESC")
+    suspend fun getAll(): List<TransactionEntity>
 
     @Query(
         """

@@ -5,14 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.bking.data.repository.AddTransactionUseCase
 import com.bking.data.repository.DashboardRepository
 import com.bking.data.repository.DashboardSummary
+import com.bking.data.repository.DefaultAccountIds
 import com.bking.data.repository.ExpenseKind
 import com.bking.data.repository.IncomeKind
-import com.bking.domain.model.Money
 import com.bking.domain.service.AmountParser
+import com.bking.ui.common.formatCny
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.text.NumberFormat
-import java.util.Currency
-import java.util.Locale
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -42,12 +40,12 @@ class DashboardViewModel @Inject constructor(
         )
 
     private fun DashboardSummary.toUiState(): DashboardUiState = DashboardUiState(
-        totalAssets = totalAssets.format(),
-        totalLiabilities = totalLiabilities.format(),
-        netWorth = netWorth.format(),
-        monthlyIncome = monthlyIncome.format(),
-        monthlyExpense = monthlyExpense.format(),
-        monthlySurplus = monthlySurplus.format()
+        totalAssets = totalAssets.formatCny(),
+        totalLiabilities = totalLiabilities.formatCny(),
+        netWorth = netWorth.formatCny(),
+        monthlyIncome = monthlyIncome.formatCny(),
+        monthlyExpense = monthlyExpense.formatCny(),
+        monthlySurplus = monthlySurplus.formatCny()
     )
 
     fun openForm(type: AddTransactionType) {
@@ -104,6 +102,18 @@ class DashboardViewModel @Inject constructor(
                         note = current.noteInput,
                         kind = current.selectedIncomeKind
                     )
+                    AddTransactionType.TRANSFER -> addTransactionUseCase.addTransfer(
+                        amount = amount,
+                        note = current.noteInput,
+                        fromAccountId = DefaultAccountIds.CASH,
+                        toAccountId = DefaultAccountIds.BANK
+                    )
+                    AddTransactionType.LIABILITY_REPAYMENT -> addTransactionUseCase.repayLiability(
+                        amount = amount,
+                        note = current.noteInput,
+                        paidFromAccountId = DefaultAccountIds.BANK,
+                        liabilityAccountId = DefaultAccountIds.CREDIT_CARD
+                    )
                 }
             }.onSuccess {
                 closeForm()
@@ -118,11 +128,6 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    private fun Money.format(): String {
-        val formatter = NumberFormat.getCurrencyInstance(Locale.CHINA)
-        formatter.currency = Currency.getInstance(currencyCode)
-        return formatter.format(minorUnits / 100.0)
-    }
 }
 
 data class DashboardUiState(
@@ -147,5 +152,7 @@ data class AddTransactionFormState(
 
 enum class AddTransactionType {
     EXPENSE,
-    INCOME
+    INCOME,
+    TRANSFER,
+    LIABILITY_REPAYMENT
 }

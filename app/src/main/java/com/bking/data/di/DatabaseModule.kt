@@ -4,7 +4,10 @@ import android.content.Context
 import androidx.room.Room
 import com.bking.data.local.BkingDatabase
 import com.bking.data.local.dao.AccountDao
+import com.bking.data.local.dao.BudgetDao
 import com.bking.data.local.dao.LedgerEntryDao
+import com.bking.data.local.dao.LoanDao
+import com.bking.data.local.dao.LoanPaymentDao
 import com.bking.data.local.dao.TransactionDao
 import dagger.Module
 import dagger.Provides
@@ -24,7 +27,9 @@ object DatabaseModule {
         context,
         BkingDatabase::class.java,
         "bking.db"
-    ).build()
+    )
+        .addMigrations(BkingDatabase.MIGRATION_1_2)
+        .build()
 
     @Provides
     fun provideAccountDao(database: BkingDatabase): AccountDao = database.accountDao()
@@ -34,5 +39,13 @@ object DatabaseModule {
 
     @Provides
     fun provideLedgerEntryDao(database: BkingDatabase): LedgerEntryDao = database.ledgerEntryDao()
-}
 
+    @Provides
+    fun provideLoanDao(database: BkingDatabase): LoanDao = database.loanDao()
+
+    @Provides
+    fun provideLoanPaymentDao(database: BkingDatabase): LoanPaymentDao = database.loanPaymentDao()
+
+    @Provides
+    fun provideBudgetDao(database: BkingDatabase): BudgetDao = database.budgetDao()
+}

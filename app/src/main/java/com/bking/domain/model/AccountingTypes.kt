@@ -31,6 +31,7 @@ enum class TransactionType {
     LIABILITY_REPAYMENT,
     LEND,
     BORROW,
+    LOAN_PAYMENT,
     INVESTMENT_BUY,
     INVESTMENT_SELL,
     BALANCE_ADJUSTMENT
@@ -41,3 +42,12 @@ enum class EntryDirection {
     CREDIT
 }
 
+enum class LoanRepaymentMethod {
+    EQUAL_PAYMENT,
+    EQUAL_PRINCIPAL
+}
+
+enum class LoanStatus {
+    ACTIVE,
+    CLOSED
+}

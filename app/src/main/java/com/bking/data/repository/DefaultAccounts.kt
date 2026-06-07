@@ -20,14 +20,17 @@ object DefaultAccounts {
     }
 
     val items: List<DefaultAccountItem> = listOf(
-        DefaultAccountItem("cash", "现金钱包", AccountGroup.ASSET, AccountType.CASH),
-        DefaultAccountItem("salary-income", "工资收入", AccountGroup.INCOME, AccountType.INCOME_CATEGORY),
-        DefaultAccountItem("external-income", "外部收入", AccountGroup.INCOME, AccountType.INCOME_CATEGORY),
-        DefaultAccountItem("other-income", "其他", AccountGroup.INCOME, AccountType.INCOME_CATEGORY),
-        DefaultAccountItem("meal-expense", "餐食", AccountGroup.EXPENSE, AccountType.EXPENSE_CATEGORY),
-        DefaultAccountItem("shopping-expense", "购物", AccountGroup.EXPENSE, AccountType.EXPENSE_CATEGORY),
-        DefaultAccountItem("sport-expense", "运动", AccountGroup.EXPENSE, AccountType.EXPENSE_CATEGORY),
-        DefaultAccountItem("other-expense", "其他", AccountGroup.EXPENSE, AccountType.EXPENSE_CATEGORY)
+        DefaultAccountItem(DefaultAccountIds.CASH, "现金钱包", AccountGroup.ASSET, AccountType.CASH),
+        DefaultAccountItem(DefaultAccountIds.BANK, "银行卡", AccountGroup.ASSET, AccountType.BANK),
+        DefaultAccountItem(DefaultAccountIds.CREDIT_CARD, "信用卡", AccountGroup.LIABILITY, AccountType.CREDIT_CARD),
+        DefaultAccountItem(DefaultAccountIds.SALARY_INCOME, "工资收入", AccountGroup.INCOME, AccountType.INCOME_CATEGORY),
+        DefaultAccountItem(DefaultAccountIds.EXTERNAL_INCOME, "外部收入", AccountGroup.INCOME, AccountType.INCOME_CATEGORY),
+        DefaultAccountItem(DefaultAccountIds.OTHER_INCOME, "其他收入", AccountGroup.INCOME, AccountType.INCOME_CATEGORY),
+        DefaultAccountItem(DefaultAccountIds.MEAL_EXPENSE, "餐饮", AccountGroup.EXPENSE, AccountType.EXPENSE_CATEGORY),
+        DefaultAccountItem(DefaultAccountIds.SHOPPING_EXPENSE, "购物", AccountGroup.EXPENSE, AccountType.EXPENSE_CATEGORY),
+        DefaultAccountItem(DefaultAccountIds.SPORT_EXPENSE, "运动", AccountGroup.EXPENSE, AccountType.EXPENSE_CATEGORY),
+        DefaultAccountItem(DefaultAccountIds.LOAN_INTEREST_EXPENSE, "贷款利息", AccountGroup.EXPENSE, AccountType.EXPENSE_CATEGORY),
+        DefaultAccountItem(DefaultAccountIds.OTHER_EXPENSE, "其他支出", AccountGroup.EXPENSE, AccountType.EXPENSE_CATEGORY)
     )
 }
 
